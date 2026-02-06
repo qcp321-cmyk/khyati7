@@ -174,7 +174,7 @@ export default function About() {
           </motion.div>
 
           <div className="flex justify-center">
-            {team.map((member, i) => (
+            {team.map((member) => (
               <ScrollEffect
                 key={member.name}
                 direction="perspective"
