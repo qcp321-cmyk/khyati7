@@ -16,13 +16,19 @@ const navLinks = [
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+
+      setScrolled(scrollTop > 20);
+      setScrollProgress(Math.min(scrollPercent, 100));
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -48,19 +54,36 @@ export default function Navbar() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className={`pointer-events-auto relative transition-all duration-500 overflow-hidden ${scrolled
-            ? 'w-full max-w-5xl rounded-[2.5rem] bg-white/80 backdrop-blur-2xl shadow-[0_8px_32px_rgba(249,115,22,0.15)] border border-white/20'
+            ? 'w-full max-w-5xl rounded-[2.5rem] bg-white/80 backdrop-blur-2xl shadow-[0_8px_32px_rgba(147,51,234,0.15)] border border-white/20'
             : 'w-full max-w-7xl rounded-none bg-transparent'
             }`}
         >
+          {/* Purple Gradient Overlay - Intensifies with scroll */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-purple-600/0 via-purple-500/20 to-purple-600/0 pointer-events-none"
+            style={{
+              opacity: scrollProgress / 100,
+            }}
+          />
+
           {/* Animated Glow Line for scrolled state */}
           <AnimatePresence>
             {scrolled && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-orange-500/50 to-transparent"
-              />
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
+                />
+                {/* Bottom purple glow that intensifies with scroll */}
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-400/40 to-transparent"
+                  style={{
+                    opacity: scrollProgress / 150,
+                  }}
+                />
+              </>
             )}
           </AnimatePresence>
 
@@ -79,14 +102,14 @@ export default function Navbar() {
                     to={link.href}
                     className="relative px-5 py-2 text-sm font-semibold transition-all duration-300 rounded-full overflow-hidden group"
                   >
-                    <span className={`relative z-10 transition-colors duration-300 ${location.pathname === link.href ? 'text-white' : 'text-gray-600 group-hover:text-orange-600'
+                    <span className={`relative z-10 transition-colors duration-300 ${location.pathname === link.href ? 'text-white' : 'text-gray-600 group-hover:text-purple-600'
                       }`}>
                       {link.label}
                     </span>
                     {location.pathname === link.href && (
                       <motion.div
                         layoutId="navTab"
-                        className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 shadow-md shadow-orange-500/20"
+                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500 shadow-md shadow-purple-500/20"
                         transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
                       />
                     )}
@@ -107,7 +130,7 @@ export default function Navbar() {
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600"
+                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500"
                     initial={{ opacity: 0 }}
                     whileHover={{ opacity: 1 }}
                   />
@@ -116,7 +139,7 @@ export default function Navbar() {
 
               {/* Mobile Menu Button */}
               <motion.button
-                className={`lg:hidden p-3 rounded-full transition-all duration-300 ${scrolled ? 'bg-orange-50 text-orange-600' : 'bg-white/20 backdrop-blur-md text-gray-800 border border-white/30'
+                className={`lg:hidden p-3 rounded-full transition-all duration-300 ${scrolled ? 'bg-purple-50 text-purple-600' : 'bg-white/20 backdrop-blur-md text-gray-800 border border-white/30'
                   }`}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 whileTap={{ scale: 0.9 }}
@@ -174,8 +197,8 @@ export default function Navbar() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="absolute right-0 top-2 bottom-2 w-[85%] max-w-md bg-white shadow-[-20px_0_50px_rgba(0,0,0,0.1)] border-l border-white/50 overflow-hidden"
             >
-              <div className="flex flex-col h-full bg-gradient-to-b from-orange-50/50 to-white">
-                <div className="p-8 flex items-center justify-between border-b border-orange-100/50">
+              <div className="flex flex-col h-full bg-gradient-to-b from-purple-50/50 to-white">
+                <div className="p-8 flex items-center justify-between border-b border-purple-100/50">
                   <Logo />
                   <motion.button
                     onClick={() => setMobileMenuOpen(false)}
@@ -198,8 +221,8 @@ export default function Navbar() {
                         <Link
                           to={link.href}
                           className={`group flex items-center justify-between px-6 py-4 rounded-[1.5rem] transition-all duration-300 ${location.pathname === link.href
-                            ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
-                            : 'bg-white hover:bg-orange-50 text-gray-700 hover:text-orange-600'
+                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
+                            : 'bg-white hover:bg-purple-50 text-gray-700 hover:text-purple-600'
                             }`}
                         >
                           <span className="text-lg font-bold">{link.label}</span>

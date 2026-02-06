@@ -34,7 +34,7 @@ export default function Footer() {
   return (
     <footer className="relative bg-gray-50 border-t border-gray-100">
       {/* Decorative top gradient */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
@@ -49,13 +49,16 @@ export default function Footer() {
 
             {/* Social Links */}
             <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
+              {socialLinks.map((social, i) => (
                 <motion.a
                   key={social.label}
                   href={social.href}
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.9 }}
-                  className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-orange-600 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-500/10 transition-all"
+                  className={`w-10 h-10 rounded-xl bg-white border flex items-center justify-center transition-all ${i % 2 === 0
+                      ? 'border-purple-200 text-purple-500 hover:text-orange-600 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-500/10'
+                      : 'border-orange-200 text-orange-500 hover:text-purple-600 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/10'
+                    }`}
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />
@@ -64,15 +67,17 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
           <div>
             <h4 className="font-semibold text-gray-800 mb-4">Product</h4>
             <ul className="space-y-3">
-              {footerLinks.product.map((link) => (
+              {footerLinks.product.map((link, i) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-gray-500 hover:text-orange-600 transition-colors inline-flex items-center gap-1 group"
+                    className={`text-sm transition-colors inline-flex items-center gap-1 group ${i % 2 === 0
+                        ? 'text-gray-500 hover:text-purple-600'
+                        : 'text-gray-500 hover:text-orange-600'
+                      }`}
                   >
                     {link.label}
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
@@ -86,11 +91,14 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-gray-800 mb-4">Company</h4>
             <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
+              {footerLinks.company.map((link, i) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-gray-500 hover:text-orange-600 transition-colors inline-flex items-center gap-1 group"
+                    className={`text-sm transition-colors inline-flex items-center gap-1 group ${i % 2 === 0
+                        ? 'text-gray-500 hover:text-orange-600'
+                        : 'text-gray-500 hover:text-purple-600'
+                      }`}
                   >
                     {link.label}
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
@@ -104,11 +112,14 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-gray-800 mb-4">Legal</h4>
             <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
+              {footerLinks.legal.map((link, i) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-gray-500 hover:text-orange-600 transition-colors inline-flex items-center gap-1 group"
+                    className={`text-sm transition-colors inline-flex items-center gap-1 group ${i % 2 === 0
+                        ? 'text-gray-500 hover:text-purple-600'
+                        : 'text-gray-500 hover:text-orange-600'
+                      }`}
                   >
                     {link.label}
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
@@ -127,7 +138,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                 All systems operational
               </span>
             </div>

@@ -166,10 +166,13 @@ export default function PainButton() {
   const [trackingTime, setTrackingTime] = useState(0);
   const eventsRef = useRef<TrackedEvent[]>([]);
 
-  // Pain button timer - shows after 1 minute
+  // Pain button timer - shows after 1 minute and turns purple
+  const [buttonColor, setButtonColor] = useState('orange');
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowPainButton(true);
+      setButtonColor('purple'); // Turn purple after 60 seconds
     }, 60000);
     return () => clearTimeout(timer);
   }, []);
@@ -255,40 +258,70 @@ export default function PainButton() {
   const generatePredictions = (events: TrackedEvent[]) => {
     const predictions: Prediction[] = [];
     const clicks = events.filter((e) => e.type === 'mouse_click');
-    const scrolls = events.filter((e) => e.type === 'scroll');
     const hovers = events.filter((e) => e.type === 'hover');
+    const mouseMoves = events.filter((e) => e.type === 'mouse_move');
 
-    if (clicks.length > 5) {
-      predictions.push({
-        action: 'Click on CTA Button',
-        confidence: 87,
-        reason: 'High click density detected, user showing engagement',
-      });
-    }
+    // Analyze click patterns and screen areas
+    const topAreaClicks = clicks.filter(c => c.vector.y < window.innerHeight / 3).length;
+    const middleAreaClicks = clicks.filter(c => c.vector.y >= window.innerHeight / 3 && c.vector.y < 2 * window.innerHeight / 3).length;
+    const bottomAreaClicks = clicks.filter(c => c.vector.y >= 2 * window.innerHeight / 3).length;
 
-    if (scrolls.length > 3) {
-      predictions.push({
-        action: 'Continue Scrolling to Features',
-        confidence: 92,
-        reason: 'Active scrolling pattern indicates content exploration',
-      });
-    }
-
-    if (hovers.length > 4) {
-      predictions.push({
-        action: 'Interact with Navigation',
-        confidence: 78,
-        reason: 'Multiple hover events on interactive elements',
-      });
-    }
-
+    // Always include homepage navigation as prediction #1
     predictions.push({
-      action: 'Request Demo',
-      confidence: 73,
-      reason: 'Time on site + interaction depth suggests interest',
+      action: 'Navigate to Homepage',
+      confidence: Math.min(95, 70 + clicks.length * 2),
+      reason: 'Common navigation pattern detected from user activity',
     });
 
-    setPredictions(predictions);
+    // Prediction #2 - Based on interaction patterns
+    if (topAreaClicks > 3) {
+      predictions.push({
+        action: 'Click Navigation Menu Item',
+        confidence: Math.min(92, 75 + topAreaClicks * 3),
+        reason: `${topAreaClicks} navigation area interactions suggest menu exploration`,
+      });
+    } else if (hovers.length > 5) {
+      predictions.push({
+        action: 'Interact with Hovered Element',
+        confidence: Math.min(88, 70 + hovers.length * 2),
+        reason: `${hovers.length} hover events indicate element consideration`,
+      });
+    } else if (middleAreaClicks > bottomAreaClicks) {
+      predictions.push({
+        action: 'Click Main Content Button',
+        confidence: 85,
+        reason: 'High engagement with central content area',
+      });
+    } else {
+      predictions.push({
+        action: 'Scroll to Next Section',
+        confidence: 82,
+        reason: 'Content exploration pattern indicates continued scrolling`,
+      });
+    }
+
+    // Prediction #3 - Based on time spent and overall behavior
+    if (clicks.length > 10) {
+      predictions.push({
+        action: 'Click Call-to-Action',
+        confidence: Math.min(90, 65 + clicks.length * 2),
+        reason: `${clicks.length} interactions show active engagement, likely to convert`,
+      });
+    } else if (mouseMoves.length > 20) {
+      predictions.push({
+        action: 'Explore Features Section',
+        confidence: 78,
+        reason: 'Cursor movement patterns suggest feature discovery intent',
+      });
+    } else {
+      predictions.push({
+        action: 'View Documentation',
+        confidence: 74,
+        reason: 'Measured interaction pace indicates information gathering',
+      });
+    }
+
+    setPredictions(predictions.slice(0, 3)); // Only show top 3
   };
 
   const startTracking = () => {
@@ -316,12 +349,15 @@ export default function PainButton() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={openPainModal}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-2xl shadow-red-500/40 hover:shadow-red-500/60 transition-shadow"
+            className={`fixed bottom-6 right-6 z-50 w-14 h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 ${buttonColor === 'purple'
+              ? 'bg-gradient-to-br from-purple-600 to-purple-500 shadow-purple-500/40 hover:shadow-purple-500/60'
+              : 'bg-gradient-to-br from-red-500 to-orange-500 shadow-red-500/40 hover:shadow-red-500/60'
+              }`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
             <motion.div
-              className="absolute inset-0 rounded-full bg-red-500"
+              className={`absolute inset-0 rounded-full ${buttonColor === 'purple' ? 'bg-purple-500' : 'bg-red-500'}`}
               animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -351,15 +387,18 @@ export default function PainButton() {
               {/* Modal Header */}
               <div className="sticky top-0 z-10 flex items-center justify-between p-4 lg:p-6 border-b border-gray-100 bg-white/95 backdrop-blur-md">
                 <div className="flex items-center gap-3 lg:gap-4">
-                  <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-lg shadow-red-500/30">
+                  <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shadow-lg ${buttonColor === 'purple'
+                    ? 'bg-gradient-to-br from-purple-600 to-purple-500 shadow-purple-500/30'
+                    : 'bg-gradient-to-br from-red-500 to-orange-500 shadow-red-500/30'
+                    }`}>
                     <Eye className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
                   </div>
                   <div>
                     <h2 className="text-lg lg:text-xl font-bold text-gray-800">
-                      Behavior Tracking Dashboard
+                      Intelligent Tracking Dashboard
                     </h2>
                     <p className="text-xs lg:text-sm text-gray-500">
-                      We've been watching your every move for the past minute
+                      AI-powered prediction of your next 3 clicks
                     </p>
                   </div>
                 </div>
@@ -534,9 +573,9 @@ export default function PainButton() {
                 >
                   <h3 className="font-bold mb-3 lg:mb-4 flex items-center gap-2 text-gray-800">
                     <TrendingUp className="w-5 h-5 text-amber-500" />
-                    AI Predictions
+                    Your Next 3 Predicted Clicks
                   </h3>
-                  <div className="grid sm:grid-cols-2 gap-3 lg:gap-4">
+                  <div className="grid gap-3 lg:gap-4">
                     {predictions.length === 0 ? (
                       <div className="col-span-2 bg-gray-50 rounded-2xl p-6 lg:p-8 text-center text-gray-400 border border-gray-100">
                         <Target className="w-10 h-10 lg:w-12 lg:h-12 mx-auto mb-3 opacity-50" />
@@ -595,8 +634,8 @@ export default function PainButton() {
                   <motion.button
                     onClick={isTracking ? () => setIsTracking(false) : startTracking}
                     className={`px-8 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all ${isTracking
-                        ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30'
-                        : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/30'
+                      ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30'
+                      : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/30'
                       }`}
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}

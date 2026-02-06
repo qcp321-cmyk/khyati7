@@ -115,6 +115,34 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         setPredictions(predictions);
     };
 
+    // Load saved tracking state from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('kimi_tracking_state');
+        if (saved) {
+            try {
+                const state = JSON.parse(saved);
+                eventsRef.current = state.events || [];
+                setTrackedEvents(state.events || []);
+                setTrackingTime(state.time || 0);
+                setIsTracking(state.isTracking || false);
+                setHasStarted(state.hasStarted || false);
+            } catch (e) {
+                console.error('Failed to load tracking state', e);
+            }
+        }
+    }, []);
+
+    // Save tracking state to localStorage whenever it changes
+    useEffect(() => {
+        const state = {
+            events: eventsRef.current,
+            time: trackingTime,
+            isTracking,
+            hasStarted,
+        };
+        localStorage.setItem('kimi_tracking_state', JSON.stringify(state));
+    }, [trackedEvents, trackingTime, isTracking, hasStarted]);
+
     const startTracking = () => {
         if (!hasStarted) {
             eventsRef.current = [];
@@ -138,6 +166,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
         setTrackingTime(0);
         setPredictions([]);
         setHasStarted(false);
+        localStorage.removeItem('kimi_tracking_state');
     };
 
     return (
