@@ -1,0 +1,384 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 260 30% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 260 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 260 30% 15%;
+    --primary: 24 95% 53%;
+    /* Orange-500 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 95% 96%;
+    --secondary-foreground: 24 95% 15%;
+    --muted: 24 20% 95%;
+    --muted-foreground: 24 15% 50%;
+    --accent: 38 92% 50%;
+    /* Amber-500 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 24 20% 90%;
+    --input: 24 20% 90%;
+    --ring: 24 95% 53%;
+    --radius: 0.75rem;
+
+    /* Custom colors */
+    --purple-primary: #F97316;
+    /* Now Orange */
+    --purple-light: #FB923C;
+    --purple-dark: #EA580C;
+    --parrot-green: #F59E0B;
+    /* Now Amber */
+    --parrot-green-light: #FBBF24;
+    --parrot-green-dark: #D97706;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--purple-primary), var(--parrot-green));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--purple-dark), var(--parrot-green-dark));
+}
+
+/* Micro animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes dot-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+@keyframes vector-flow {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes node-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 5px var(--purple-primary), 0 0 10px var(--purple-light);
+  }
+
+  50% {
+    box-shadow: 0 0 15px var(--purple-primary), 0 0 25px var(--purple-light);
+  }
+}
+
+@keyframes data-packet {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation utilities */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-dot-pulse {
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+
+.animate-node-glow {
+  animation: node-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out forwards;
+}
+
+/* Hover micro-interactions */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px -12px rgba(139, 92, 246, 0.25);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Gradient backgrounds */
+.gradient-purple {
+  background: linear-gradient(135deg, var(--purple-primary), var(--purple-light));
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, var(--parrot-green), var(--parrot-green-light));
+}
+
+.gradient-mixed {
+  background: linear-gradient(135deg, var(--purple-primary) 0%, var(--parrot-green) 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--purple-primary), var(--parrot-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect for light theme */
+.glass-light {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+/* Card styles */
+.card-gradient {
+  background: linear-gradient(145deg, #ffffff 0%, #f8f7ff 100%);
+  border: 1px solid rgba(139, 92, 246, 0.08);
+}
+
+.card-gradient:hover {
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+/* Vector path styles */
+.vector-path {
+  stroke: url(#vectorGradient);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vector-node {
+  fill: var(--purple-primary);
+  stroke: white;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5));
+}
+
+.vector-node-active {
+  fill: var(--parrot-green);
+  animation: node-glow 1.5s ease-in-out infinite;
+}
+
+/* Data packet animation */
+.data-packet {
+  fill: var(--parrot-green);
+  filter: drop-shadow(0 0 6px var(--parrot-green));
+}
+
+/* Button styles */
+.btn-primary {
+  @apply px-6 py-3 rounded-xl font-medium text-white transition-all duration-300;
+  background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark));
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px rgba(139, 92, 246, 0.5);
+}
+
+.btn-secondary {
+  @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+  background: white;
+  border: 2px solid var(--purple-primary);
+  color: var(--purple-primary);
+}
+
+.btn-secondary:hover {
+  background: rgba(139, 92, 246, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Badge styles */
+.badge-purple {
+  @apply px-3 py-1 rounded-full text-xs font-medium;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--purple-primary);
+}
+
+.badge-green {
+  @apply px-3 py-1 rounded-full text-xs font-medium;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--parrot-green);
+}
+
+/* Progress bar */
+.progress-gradient {
+  background: linear-gradient(90deg, var(--purple-primary), var(--parrot-green));
+}
+
+/* Pain button */
+.pain-button {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* Mobile menu */
+.mobile-menu-enter {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* Grid pattern */
+.grid-pattern-light {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(139, 92, 246, 0.08) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+/* Confetti animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  animation: confetti-fall 3s ease-out forwards;
+}
