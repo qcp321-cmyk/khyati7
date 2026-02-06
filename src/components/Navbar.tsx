@@ -54,13 +54,13 @@ export default function Navbar() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className={`pointer-events-auto relative transition-all duration-500 overflow-hidden ${scrolled
-            ? 'w-full max-w-5xl rounded-[2.5rem] bg-white/80 backdrop-blur-2xl shadow-[0_8px_32px_rgba(147,51,234,0.15)] border border-white/20'
+            ? 'w-full max-w-[90%] lg:max-w-6xl rounded-[2.5rem] bg-orange-50/90 backdrop-blur-3xl shadow-[0_8px_32px_rgba(249,115,22,0.15)] border border-white/40'
             : 'w-full max-w-7xl rounded-none bg-transparent'
             }`}
         >
           {/* Purple Gradient Overlay - Intensifies with scroll */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-purple-600/0 via-purple-500/20 to-purple-600/0 pointer-events-none"
+            className="absolute inset-0 bg-gradient-to-r from-purple-600/0 via-purple-500/10 to-purple-600/0 pointer-events-none"
             style={{
               opacity: scrollProgress / 100,
             }}
@@ -76,96 +76,102 @@ export default function Navbar() {
                   exit={{ opacity: 0 }}
                   className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"
                 />
-                {/* Bottom purple glow that intensifies with scroll */}
                 <motion.div
                   className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-400/40 to-transparent"
-                  style={{
-                    opacity: scrollProgress / 150,
-                  }}
+                  style={{ opacity: scrollProgress / 150 }}
                 />
               </>
             )}
           </AnimatePresence>
 
-          <div className="px-6 sm:px-10">
-            <div className="flex items-center justify-between h-16 lg:h-20">
-              {/* Logo */}
-              <Link to="/" className="group flex-shrink-0">
+          <div className="flex h-16 lg:h-20">
+            {/* 30% Section - Logo */}
+            <div className={`flex-[0_0_auto] w-[20%] lg:w-[30%] flex items-center px-6 lg:px-8 transition-colors duration-500 ${scrolled ? 'border-r border-orange-200/20 bg-white/30' : ''}`}>
+              <Link to="/" className="group flex-shrink-0" onClick={() => window.scrollTo(0, 0)}>
                 <Logo />
               </Link>
+            </div>
 
+            {/* 70% Section - Navigation */}
+            <div className="flex-[1_1_auto] w-[80%] lg:w-[70%] flex items-center justify-end lg:justify-between px-6 lg:px-8">
               {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center gap-2 bg-gray-50/50 p-1.5 rounded-full border border-gray-100/50">
+              <div className="hidden lg:flex items-center gap-1 bg-white/40 p-1.5 rounded-full border border-white/40 backdrop-blur-md shadow-sm">
                 {navLinks.map((link) => (
                   <Link
                     key={link.label}
                     to={link.href}
                     className="relative px-5 py-2 text-sm font-semibold transition-all duration-300 rounded-full overflow-hidden group"
                   >
-                    <span className={`relative z-10 transition-colors duration-300 ${location.pathname === link.href ? 'text-white' : 'text-gray-600 group-hover:text-purple-600'
+                    <span className={`relative z-10 transition-colors duration-300 ${location.pathname === link.href ? 'text-purple-700' : 'text-gray-600 group-hover:text-purple-600'
                       }`}>
                       {link.label}
                     </span>
                     {location.pathname === link.href && (
                       <motion.div
                         layoutId="navTab"
-                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500 shadow-md shadow-purple-500/20"
-                        transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
+                        className="absolute inset-0 bg-white shadow-sm"
+                        transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                       />
                     )}
                   </Link>
                 ))}
               </div>
 
-              {/* CTA Button */}
-              <div className="hidden lg:flex items-center gap-4">
+              {/* Title / Mobile Spacer (when not scrolled or mobile) */}
+              <div className="lg:hidden flex-1" />
+
+              {/* Right Side Actions */}
+              <div className="flex items-center gap-3 lg:gap-4">
+                {/* CTA Button */}
+                <div className="hidden lg:flex items-center">
+                  <motion.button
+                    onClick={handleGetStarted}
+                    className="group relative px-6 py-2.5 bg-gray-900 text-white rounded-full font-bold overflow-hidden"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      Get Started
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                    />
+                  </motion.button>
+                </div>
+
+                {/* Mobile Menu Button */}
                 <motion.button
-                  onClick={handleGetStarted}
-                  className="group relative px-6 py-2.5 bg-gray-900 text-white rounded-full font-bold overflow-hidden"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className={`lg:hidden p-3 rounded-full transition-all duration-300 ${scrolled ? 'bg-purple-50 text-purple-600 shadow-sm' : 'bg-white/20 backdrop-blur-md text-gray-800 border border-white/30'
+                    }`}
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Get Started
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                  />
+                  <AnimatePresence mode="wait">
+                    {mobileMenuOpen ? (
+                      <motion.div
+                        key="close"
+                        initial={{ scale: 0, rotate: -90 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        exit={{ scale: 0, rotate: 90 }}
+                      >
+                        <X className="w-5 h-5" />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="menu"
+                        initial={{ scale: 0, rotate: 90 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        exit={{ scale: 0, rotate: -90 }}
+                      >
+                        <Menu className="w-5 h-5" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.button>
               </div>
-
-              {/* Mobile Menu Button */}
-              <motion.button
-                className={`lg:hidden p-3 rounded-full transition-all duration-300 ${scrolled ? 'bg-purple-50 text-purple-600' : 'bg-white/20 backdrop-blur-md text-gray-800 border border-white/30'
-                  }`}
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                whileTap={{ scale: 0.9 }}
-              >
-                <AnimatePresence mode="wait">
-                  {mobileMenuOpen ? (
-                    <motion.div
-                      key="close"
-                      initial={{ scale: 0, rotate: -90 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      exit={{ scale: 0, rotate: 90 }}
-                    >
-                      <X className="w-6 h-6" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="menu"
-                      initial={{ scale: 0, rotate: 90 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      exit={{ scale: 0, rotate: -90 }}
-                    >
-                      <Menu className="w-6 h-6" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
             </div>
           </div>
         </motion.nav>
