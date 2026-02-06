@@ -99,7 +99,7 @@ export default function Logo({ className = "", showText = true }: { className?: 
                         kHyAtI-7
                     </motion.span>
                     <span className="text-[10px] lg:text-xs text-slate-400 font-bold tracking-[0.2em] uppercase -mt-1">
-                        Quantum Tracker
+                        own Tbrain for India
                     </span>
                 </div>
             )}
