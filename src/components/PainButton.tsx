@@ -296,7 +296,7 @@ export default function PainButton() {
       predictions.push({
         action: 'Scroll to Next Section',
         confidence: 82,
-        reason: 'Content exploration pattern indicates continued scrolling`,
+        reason: 'Content exploration pattern indicates continued scrolling',
       });
     }
 
