@@ -255,7 +255,7 @@ export default function PainButton() {
     };
   }, [isTracking]);
 
-  const generatePredictions = (events: TrackedEvent[]) => {
+  const generatePredictions = useCallback((events: TrackedEvent[]) => {
     const predictions: Prediction[] = [];
     const clicks = events.filter((e) => e.type === 'mouse_click');
     const hovers = events.filter((e) => e.type === 'hover');
@@ -322,6 +322,11 @@ export default function PainButton() {
     }
 
     setPredictions(predictions.slice(0, 3)); // Only show top 3
+  }, []);
+
+  const stopTracking = () => {
+    setIsTracking(false);
+    generatePredictions(eventsRef.current);
   };
 
   const startTracking = () => {
@@ -632,7 +637,7 @@ export default function PainButton() {
                   className="mt-6 flex justify-center"
                 >
                   <motion.button
-                    onClick={isTracking ? () => setIsTracking(false) : startTracking}
+                    onClick={isTracking ? stopTracking : startTracking}
                     className={`px-8 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all ${isTracking
                       ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30'
                       : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/30'
