@@ -107,11 +107,16 @@ export default function About() {
           <ScrollEffect direction="perspective">
             <div className="text-center">
               <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-gray-800">Our Mission</h2>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                We believe that understanding user behavior is the key to building better products.
-                Our mission is to provide developers and businesses with the tools they need to
-                capture, analyze, and act on user activity data—while always respecting user privacy
-                and maintaining the highest standards of data security.
+              <p className="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
+                Our mission is to <span className="font-semibold text-gray-900">preserve the cognitive brain of a team inside a vector</span>.
+                We are building the next generation of backup—capturing not just data, but the
+                <span className="font-semibold text-purple-600"> action footprints </span>
+                and execution styles that define your team's success.
+              </p>
+              <p className="text-lg text-gray-600 leading-relaxed mt-6 max-w-3xl mx-auto">
+                With kHyAtI-7, when a team member leaves, their decision-making logic remains. By matching new situations
+                to historical vectors with 95-100% precision, we ensure the most favorable actions are preserved and replicable.
+                It's about immortalizing the "how" of execution, ensuring your organization's collective intelligence never fades.
               </p>
             </div>
           </ScrollEffect>

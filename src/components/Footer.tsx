@@ -44,7 +44,7 @@ export default function Footer() {
               <Logo />
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed max-w-xs mb-6">
-              Intelligent activity tracking that captures every moment as a contextual vector. Build powerful audit trails with AI-powered insights.
+              Preserving the cognitive brain of your team inside a vector. The next generation of backup—capturing data, action footprints, and execution styles.
             </p>
 
             {/* Social Links */}
@@ -56,8 +56,8 @@ export default function Footer() {
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.9 }}
                   className={`w-10 h-10 rounded-xl bg-white border flex items-center justify-center transition-all ${i % 2 === 0
-                      ? 'border-purple-200 text-purple-500 hover:text-orange-600 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-500/10'
-                      : 'border-orange-200 text-orange-500 hover:text-purple-600 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/10'
+                    ? 'border-purple-200 text-purple-500 hover:text-orange-600 hover:border-orange-300 hover:shadow-lg hover:shadow-orange-500/10'
+                    : 'border-orange-200 text-orange-500 hover:text-purple-600 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/10'
                     }`}
                   aria-label={social.label}
                 >
@@ -75,8 +75,8 @@ export default function Footer() {
                   <Link
                     to={link.href}
                     className={`text-sm transition-colors inline-flex items-center gap-1 group ${i % 2 === 0
-                        ? 'text-gray-500 hover:text-purple-600'
-                        : 'text-gray-500 hover:text-orange-600'
+                      ? 'text-gray-500 hover:text-purple-600'
+                      : 'text-gray-500 hover:text-orange-600'
                       }`}
                   >
                     {link.label}
@@ -96,8 +96,8 @@ export default function Footer() {
                   <Link
                     to={link.href}
                     className={`text-sm transition-colors inline-flex items-center gap-1 group ${i % 2 === 0
-                        ? 'text-gray-500 hover:text-orange-600'
-                        : 'text-gray-500 hover:text-purple-600'
+                      ? 'text-gray-500 hover:text-orange-600'
+                      : 'text-gray-500 hover:text-purple-600'
                       }`}
                   >
                     {link.label}
@@ -117,8 +117,8 @@ export default function Footer() {
                   <Link
                     to={link.href}
                     className={`text-sm transition-colors inline-flex items-center gap-1 group ${i % 2 === 0
-                        ? 'text-gray-500 hover:text-purple-600'
-                        : 'text-gray-500 hover:text-orange-600'
+                      ? 'text-gray-500 hover:text-purple-600'
+                      : 'text-gray-500 hover:text-orange-600'
                       }`}
                   >
                     {link.label}
