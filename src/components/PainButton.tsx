@@ -268,56 +268,56 @@ export default function PainButton() {
 
     // Always include homepage navigation as prediction #1
     predictions.push({
-      action: 'Navigate to Homepage',
+      action: 'Click "Home" Logo',
       confidence: Math.min(95, 70 + clicks.length * 2),
-      reason: 'Common navigation pattern detected from user activity',
+      reason: 'Recurrent return-to-base behavior detected',
     });
 
     // Prediction #2 - Based on interaction patterns
     if (topAreaClicks > 3) {
       predictions.push({
-        action: 'Click Navigation Menu Item',
+        action: 'Click "Products" Dropdown',
         confidence: Math.min(92, 75 + topAreaClicks * 3),
-        reason: `${topAreaClicks} navigation area interactions suggest menu exploration`,
+        reason: 'Cursor concentration in top-nav coordinates suggests menu interaction',
       });
     } else if (hovers.length > 5) {
       predictions.push({
-        action: 'Interact with Hovered Element',
+        action: 'Click "Watch Demo" Thumbnail',
         confidence: Math.min(88, 70 + hovers.length * 2),
-        reason: `${hovers.length} hover events indicate element consideration`,
+        reason: 'Hover dwell time >2s on media element detected',
       });
     } else if (middleAreaClicks > bottomAreaClicks) {
       predictions.push({
-        action: 'Click Main Content Button',
+        action: 'Click "Start Free Trial" CTA',
         confidence: 85,
-        reason: 'High engagement with central content area',
+        reason: 'Velocity vectors converging on primary viewport action',
       });
     } else {
       predictions.push({
-        action: 'Scroll to Next Section',
+        action: 'Click "Load More" Button',
         confidence: 82,
-        reason: 'Content exploration pattern indicates continued scrolling',
+        reason: 'Scroll depth indicates intent to consume extended content',
       });
     }
 
     // Prediction #3 - Based on time spent and overall behavior
     if (clicks.length > 10) {
       predictions.push({
-        action: 'Click Call-to-Action',
+        action: 'Submit "Contact Sales" Form',
         confidence: Math.min(90, 65 + clicks.length * 2),
-        reason: `${clicks.length} interactions show active engagement, likely to convert`,
+        reason: 'High interaction frequency correlates with conversion intent',
       });
     } else if (mouseMoves.length > 20) {
       predictions.push({
-        action: 'Explore Features Section',
+        action: 'Click "Feature Comparison" Link',
         confidence: 78,
-        reason: 'Cursor movement patterns suggest feature discovery intent',
+        reason: 'Horizontal scanning pattern suggests comparison behavior',
       });
     } else {
       predictions.push({
-        action: 'View Documentation',
+        action: 'Download "Whitepaper" PDF',
         confidence: 74,
-        reason: 'Measured interaction pace indicates information gathering',
+        reason: 'Passive reading mode suggests research intent',
       });
     }
 

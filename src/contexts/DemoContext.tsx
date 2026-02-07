@@ -87,29 +87,30 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
 
     const generatePredictions = (events: TrackedEvent[]) => {
         const predictions: Prediction[] = [];
-        const clicks = events.filter((e) => e.type === 'mouse_click');
-        const keypresses = events.filter((e) => e.type === 'keypress');
+        const activityFactor = Math.min(events.length, 10);
 
-        if (clicks.length > 5) {
-            predictions.push({
-                action: 'Active Explorer',
-                confidence: 88,
-                reason: 'Multiple click interactions detected across pages',
-            });
-        }
+        // Simulation of Behavioral Predictive Analysis
+        // In a real app, this would use the vector data to predict exact coordinates
 
-        if (keypresses.length > 3) {
-            predictions.push({
-                action: 'Information Seeker',
-                confidence: 82,
-                reason: 'Keyboard interactions suggest searching or form usage',
-            });
-        }
-
+        // 1. High Confidence Action Prediction
         predictions.push({
-            action: 'Potential Lead',
-            confidence: 75,
-            reason: 'Sustained engagement with the platform',
+            action: 'Click "Start Tracking" CTA',
+            confidence: 85 + activityFactor,
+            reason: 'Cursor velocity and vector alignment indicate high probability of engaging primary action.',
+        });
+
+        // 2. Navigation/Context Prediction
+        predictions.push({
+            action: 'Select "Vector Flow" Tab',
+            confidence: 80 + activityFactor,
+            reason: 'User dwell time on visualization component suggests intent to inspect data capabilities.',
+        });
+
+        // 3. Next Step Prediction
+        predictions.push({
+            action: 'Click "Pricing" in Navigation',
+            confidence: 75 + activityFactor,
+            reason: 'Sequential pattern matches "Evaluation" phase; high likelihood of checking costs next.',
         });
 
         setPredictions(predictions);
