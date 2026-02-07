@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, X, Play, Pause, TrendingUp, Brain, Activity, Target } from 'lucide-react';
+import { Eye, X, Brain, Activity } from 'lucide-react';
 
 interface TrackedEvent {
   id: string;
@@ -17,15 +17,6 @@ interface Prediction {
   reason: string;
 }
 
-const eventIcons: Record<string, React.ReactNode> = {
-  mouse_move: <Activity className="w-4 h-4" />,
-  mouse_click: <Target className="w-4 h-4" />,
-  scroll: <Activity className="w-4 h-4" />,
-  keypress: <Activity className="w-4 h-4" />,
-  hover: <Eye className="w-4 h-4" />,
-  focus: <Activity className="w-4 h-4" />,
-  blur: <Activity className="w-4 h-4" />,
-};
 
 // Vector Flow Visualization Component
 const VectorFlowVisualization = ({ events }: { events: TrackedEvent[] }) => {
@@ -36,7 +27,7 @@ const VectorFlowVisualization = ({ events }: { events: TrackedEvent[] }) => {
     const updateDimensions = () => {
       if (svgRef.current) {
         const rect = svgRef.current.getBoundingClientRect();
-        setDimensions({ width: rect.width, height: rect.height });
+        setDimensions({ width: rect.width || 400, height: rect.height || 250 });
       }
     };
     updateDimensions();
@@ -166,36 +157,83 @@ export default function PainButton() {
   const [trackingTime, setTrackingTime] = useState(0);
   const eventsRef = useRef<TrackedEvent[]>([]);
 
-  // Pain button timer - shows after 1 minute and turns purple
-  const [buttonColor, setButtonColor] = useState('orange');
+  // Stable trackEvent function
+  const trackEvent = useCallback((type: string, data: Record<string, any>, vector: { x: number; y: number }) => {
+    const event: TrackedEvent = {
+      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      timestamp: Date.now(),
+      data,
+      confidence: Math.floor(Math.random() * 15) + 85,
+      vector,
+    };
+    eventsRef.current.push(event);
+    setTrackedEvents([...eventsRef.current]);
+  }, []);
 
+  // Timer for showing the button
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowPainButton(true);
-      setButtonColor('purple'); // Turn purple after 60 seconds
-    }, 60000);
+    }, 5000); // Reduced to 5s for easier testing
     return () => clearTimeout(timer);
   }, []);
 
-  // Behavior tracking
+  const generatePredictions = useCallback((events: TrackedEvent[]) => {
+    const predictions: Prediction[] = [];
+    const clicks = events.filter((e) => e.type === 'mouse_click');
+    // Analyze click patterns and screen areas
+    const topAreaClicks = clicks.filter(c => c.vector.y < window.innerHeight / 3).length;
+
+    // Predictions logic
+    predictions.push({
+      action: 'Click "Start Tracking" CTA',
+      confidence: Math.min(95, 80 + clicks.length * 2),
+      reason: 'Interaction velocity aligns with primary conversion goal',
+    });
+
+    if (topAreaClicks > 2) {
+      predictions.push({
+        action: 'Click Navigation Menu',
+        confidence: 88,
+        reason: 'Recurrent cursor focus on header coordinates',
+      });
+    } else {
+      predictions.push({
+        action: 'Expand Cluster Details',
+        confidence: 85,
+        reason: 'Interest in deep-level audit trail detected',
+      });
+    }
+
+    predictions.push({
+      action: 'Download Audit Report',
+      confidence: 76,
+      reason: 'Sustained engagement indicates high professional interest',
+    });
+
+    setPredictions(predictions.slice(0, 3));
+  }, []);
+
+  const startTracking = useCallback(() => {
+    eventsRef.current = [];
+    setTrackedEvents([]);
+    setIsTracking(true);
+    setTrackingTime(0);
+    setPredictions([]);
+  }, []);
+
+  const stopTracking = useCallback(() => {
+    setIsTracking(false);
+    generatePredictions(eventsRef.current);
+  }, [generatePredictions]);
+
+  // Behavior tracking effect
   useEffect(() => {
     if (!isTracking) return;
 
-    const trackEvent = useCallback((type: string, data: Record<string, any>, vector: { x: number; y: number }) => {
-      const event: TrackedEvent = {
-        id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        type,
-        timestamp: Date.now(),
-        data,
-        confidence: Math.floor(Math.random() * 15) + 85,
-        vector,
-      };
-      eventsRef.current.push(event);
-      setTrackedEvents([...eventsRef.current]);
-    }, []);
-
     const handleMouseMove = (e: MouseEvent) => {
-      if (Math.random() > 0.85) {
+      if (Math.random() > 0.9) {
         trackEvent('mouse_move', { x: e.clientX, y: e.clientY }, { x: e.clientX, y: e.clientY });
       }
     };
@@ -208,36 +246,18 @@ export default function PainButton() {
       }, { x: e.clientX, y: e.clientY });
     };
 
-    let scrollTimeout: ReturnType<typeof setTimeout>;
     const handleScroll = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        trackEvent('scroll', { scrollY: window.scrollY }, { x: window.innerWidth / 2, y: window.scrollY });
-      }, 150);
-    };
-
-    const handleKeypress = (e: KeyboardEvent) => {
-      trackEvent('keypress', { key: e.key }, { x: 0, y: 0 });
-    };
-
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'BUTTON' || target.tagName === 'A') {
-        trackEvent('hover', { element: target.tagName }, { x: 0, y: 0 });
-      }
+      trackEvent('scroll', { scrollY: window.scrollY }, { x: window.innerWidth / 2, y: window.scrollY });
     };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('click', handleClick);
     window.addEventListener('scroll', handleScroll);
-    document.addEventListener('keydown', handleKeypress);
-    document.addEventListener('mouseover', handleMouseOver);
 
     const interval = setInterval(() => {
       setTrackingTime((prev) => {
         if (prev >= 60) {
-          setIsTracking(false);
-          generatePredictions(eventsRef.current);
+          stopTracking();
           return 60;
         }
         return prev + 1;
@@ -248,96 +268,13 @@ export default function PainButton() {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('click', handleClick);
       window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('keydown', handleKeypress);
-      document.removeEventListener('mouseover', handleMouseOver);
-      clearTimeout(scrollTimeout);
       clearInterval(interval);
     };
-  }, [isTracking]);
+  }, [isTracking, trackEvent, stopTracking]);
 
-  const generatePredictions = useCallback((events: TrackedEvent[]) => {
-    const predictions: Prediction[] = [];
-    const clicks = events.filter((e) => e.type === 'mouse_click');
-    const hovers = events.filter((e) => e.type === 'hover');
-    const mouseMoves = events.filter((e) => e.type === 'mouse_move');
-
-    // Analyze click patterns and screen areas
-    const topAreaClicks = clicks.filter(c => c.vector.y < window.innerHeight / 3).length;
-    const middleAreaClicks = clicks.filter(c => c.vector.y >= window.innerHeight / 3 && c.vector.y < 2 * window.innerHeight / 3).length;
-    const bottomAreaClicks = clicks.filter(c => c.vector.y >= 2 * window.innerHeight / 3).length;
-
-    // Always include homepage navigation as prediction #1
-    predictions.push({
-      action: 'Click "Home" Logo',
-      confidence: Math.min(95, 70 + clicks.length * 2),
-      reason: 'Recurrent return-to-base behavior detected',
-    });
-
-    // Prediction #2 - Based on interaction patterns
-    if (topAreaClicks > 3) {
-      predictions.push({
-        action: 'Click "Products" Dropdown',
-        confidence: Math.min(92, 75 + topAreaClicks * 3),
-        reason: 'Cursor concentration in top-nav coordinates suggests menu interaction',
-      });
-    } else if (hovers.length > 5) {
-      predictions.push({
-        action: 'Click "Watch Demo" Thumbnail',
-        confidence: Math.min(88, 70 + hovers.length * 2),
-        reason: 'Hover dwell time >2s on media element detected',
-      });
-    } else if (middleAreaClicks > bottomAreaClicks) {
-      predictions.push({
-        action: 'Click "Start Free Trial" CTA',
-        confidence: 85,
-        reason: 'Velocity vectors converging on primary viewport action',
-      });
-    } else {
-      predictions.push({
-        action: 'Click "Load More" Button',
-        confidence: 82,
-        reason: 'Scroll depth indicates intent to consume extended content',
-      });
-    }
-
-    // Prediction #3 - Based on time spent and overall behavior
-    if (clicks.length > 10) {
-      predictions.push({
-        action: 'Submit "Contact Sales" Form',
-        confidence: Math.min(90, 65 + clicks.length * 2),
-        reason: 'High interaction frequency correlates with conversion intent',
-      });
-    } else if (mouseMoves.length > 20) {
-      predictions.push({
-        action: 'Click "Feature Comparison" Link',
-        confidence: 78,
-        reason: 'Horizontal scanning pattern suggests comparison behavior',
-      });
-    } else {
-      predictions.push({
-        action: 'Download "Whitepaper" PDF',
-        confidence: 74,
-        reason: 'Passive reading mode suggests research intent',
-      });
-    }
-
-    setPredictions(predictions.slice(0, 3)); // Only show top 3
-  }, []);
-
-  const stopTracking = () => {
-    setIsTracking(false);
-    generatePredictions(eventsRef.current);
-  };
-
-  const startTracking = () => {
-    eventsRef.current = [];
-    setTrackedEvents([]);
-    setIsTracking(true);
-    setTrackingTime(0);
-    setPredictions([]);
-  };
-
-  const openPainModal = () => {
+  const openPainModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setPainModalOpen(true);
     if (!isTracking && trackedEvents.length === 0) {
       startTracking();
@@ -353,16 +290,14 @@ export default function PainButton() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
+            type="button"
             onClick={openPainModal}
-            className={`fixed bottom-6 right-6 z-50 w-14 h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 ${buttonColor === 'purple'
-              ? 'bg-gradient-to-br from-purple-600 to-purple-500 shadow-purple-500/40 hover:shadow-purple-500/60'
-              : 'bg-gradient-to-br from-red-500 to-orange-500 shadow-red-500/40 hover:shadow-red-500/60'
-              }`}
+            className={`fixed bottom-6 right-6 z-[100] w-14 h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 bg-gradient-to-br from-purple-600 to-purple-500 shadow-purple-500/40 hover:shadow-purple-500/60`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
             <motion.div
-              className={`absolute inset-0 rounded-full ${buttonColor === 'purple' ? 'bg-purple-500' : 'bg-red-500'}`}
+              className="absolute inset-0 rounded-full bg-purple-500"
               animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -378,7 +313,7 @@ export default function PainButton() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             onClick={() => setPainModalOpen(false)}
           >
             <motion.div
@@ -392,10 +327,7 @@ export default function PainButton() {
               {/* Modal Header */}
               <div className="sticky top-0 z-10 flex items-center justify-between p-4 lg:p-6 border-b border-gray-100 bg-white/95 backdrop-blur-md">
                 <div className="flex items-center gap-3 lg:gap-4">
-                  <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shadow-lg ${buttonColor === 'purple'
-                    ? 'bg-gradient-to-br from-purple-600 to-purple-500 shadow-purple-500/30'
-                    : 'bg-gradient-to-br from-red-500 to-orange-500 shadow-red-500/30'
-                    }`}>
+                  <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-purple-600 to-purple-500 shadow-purple-500/30">
                     <Eye className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
                   </div>
                   <div>
@@ -403,7 +335,7 @@ export default function PainButton() {
                       Intelligent Tracking Dashboard
                     </h2>
                     <p className="text-xs lg:text-sm text-gray-500">
-                      AI-powered prediction of your next 3 clicks
+                      Predicting your exact next interaction
                     </p>
                   </div>
                 </div>
@@ -420,244 +352,81 @@ export default function PainButton() {
               <div className="p-4 lg:p-6">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 lg:gap-4 mb-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-orange-50 rounded-2xl p-3 lg:p-4 text-center"
-                  >
-                    <div className="text-2xl lg:text-3xl font-bold text-orange-600">
-                      {trackedEvents.length}
-                    </div>
+                  <div className="bg-purple-50 rounded-2xl p-3 lg:p-4 text-center">
+                    <div className="text-2xl lg:text-3xl font-bold text-purple-600">{trackedEvents.length}</div>
                     <div className="text-xs lg:text-sm text-gray-500">Events Tracked</div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="bg-amber-50 rounded-2xl p-3 lg:p-4 text-center"
-                  >
-                    <div className="text-2xl lg:text-3xl font-bold text-amber-600">
-                      {trackingTime}s
-                    </div>
+                  </div>
+                  <div className="bg-orange-50 rounded-2xl p-3 lg:p-4 text-center">
+                    <div className="text-2xl lg:text-3xl font-bold text-orange-600">{trackingTime}s</div>
                     <div className="text-xs lg:text-sm text-gray-500">Duration</div>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-orange-50 rounded-2xl p-3 lg:p-4 text-center"
-                  >
-                    <div className="text-2xl lg:text-3xl font-bold text-orange-600">
+                  </div>
+                  <div className="bg-purple-50 rounded-2xl p-3 lg:p-4 text-center">
+                    <div className="text-2xl lg:text-3xl font-bold text-purple-600">
                       {trackedEvents.length > 0
-                        ? Math.round(
-                          trackedEvents.reduce((acc, e) => acc + e.confidence, 0) /
-                          trackedEvents.length
-                        )
-                        : 0}
-                      %
+                        ? Math.round(trackedEvents.reduce((acc, e) => acc + e.confidence, 0) / trackedEvents.length)
+                        : 0}%
                     </div>
-                    <div className="text-xs lg:text-sm text-gray-500">Avg Confidence</div>
-                  </motion.div>
+                    <div className="text-xs lg:text-sm text-gray-500">Confidence</div>
+                  </div>
                 </div>
 
-                {/* Progress Bar */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 }}
-                  className="mb-6"
-                >
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-500">Tracking Progress</span>
-                    <span className="font-mono text-gray-700">
-                      {Math.min(trackingTime, 60)}/60s
-                    </span>
-                  </div>
-                  <div className="h-3 rounded-full bg-gray-100 overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-500"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(Math.min(trackingTime, 60) / 60) * 100}%` }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </div>
-                </motion.div>
-
-                {/* Vector Flow & Events */}
+                {/* Main Content */}
                 <div className="grid lg:grid-cols-2 gap-4 lg:gap-6">
-                  {/* Vector Flow */}
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <h3 className="font-bold mb-3 lg:mb-4 flex items-center gap-2 text-gray-800">
-                      <Activity className="w-5 h-5 text-orange-500" />
+                  <div className="bg-gray-50 rounded-2xl p-4 h-64 border border-gray-100 overflow-hidden">
+                    <h3 className="font-bold mb-3 flex items-center gap-2 text-gray-800">
+                      <Activity className="w-5 h-5 text-purple-500" />
                       Vector Flow Map
                     </h3>
-                    <div className="bg-gray-50 rounded-2xl p-4 h-48 lg:h-64 border border-gray-100">
+                    <div className="h-48">
                       <VectorFlowVisualization events={trackedEvents} />
                     </div>
-                  </motion.div>
+                  </div>
 
-                  {/* Event Stream */}
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.35 }}
-                  >
-                    <h3 className="font-bold mb-3 lg:mb-4 flex items-center gap-2 text-gray-800">
-                      <Brain className="w-5 h-5 text-orange-500" />
-                      Event Vector Stream
+                  <div className="bg-gray-50 rounded-2xl p-4 h-64 border border-gray-100 flex flex-col">
+                    <h3 className="font-bold mb-3 flex items-center gap-2 text-gray-800">
+                      <Brain className="w-5 h-5 text-purple-500" />
+                      Live Predictions
                     </h3>
-                    <div className="bg-gray-50 rounded-2xl p-3 lg:p-4 max-h-48 lg:max-h-64 overflow-auto space-y-2 border border-gray-100">
-                      {trackedEvents.length === 0 ? (
-                        <div className="text-center py-8 text-gray-400">
-                          {isTracking ? (
-                            <div className="flex flex-col items-center gap-3">
-                              <motion.div
-                                className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full"
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                              />
-                              <span className="text-sm">Tracking your activity...</span>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col items-center gap-3">
-                              <Play className="w-8 h-8 opacity-50" />
-                              <span className="text-sm">Click Start to begin tracking</span>
-                            </div>
-                          )}
+                    <div className="flex-1 overflow-auto space-y-3">
+                      {predictions.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                          <Brain className="w-8 h-8 mb-2 opacity-50 animate-pulse" />
+                          <p className="text-xs">Analyzing behavioral patterns...</p>
                         </div>
                       ) : (
-                        trackedEvents
-                          .slice()
-                          .reverse()
-                          .map((event, i) => (
-                            <motion.div
-                              key={event.id}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: i * 0.02 }}
-                              className="flex items-center gap-2 lg:gap-3 p-2 lg:p-3 bg-white rounded-xl text-sm border border-gray-100 hover:border-orange-200 transition-colors"
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
-                                {eventIcons[event.type] || <Activity className="w-4 h-4" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-mono text-orange-600 text-xs lg:text-sm">
-                                  {event.type}
-                                </div>
-                                <div className="text-xs text-gray-400 font-mono truncate">
-                                  x:{Math.round(event.vector.x)}, y:
-                                  {Math.round(event.vector.y)}
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-xs text-gray-400">
-                                  {new Date(event.timestamp).toLocaleTimeString()}
-                                </div>
-                                <div className="text-xs text-amber-600">
-                                  {event.confidence}%
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))
+                        predictions.map((p, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="bg-white p-3 rounded-xl border border-purple-100"
+                          >
+                            <div className="flex justify-between items-start mb-1">
+                              <span className="font-bold text-sm text-gray-800">{p.action}</span>
+                              <span className="text-xs font-bold text-purple-600">{p.confidence}%</span>
+                            </div>
+                            <p className="text-[10px] text-gray-500">{p.reason}</p>
+                          </motion.div>
+                        ))
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
 
-                {/* AI Predictions */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="mt-4 lg:mt-6"
-                >
-                  <h3 className="font-bold mb-3 lg:mb-4 flex items-center gap-2 text-gray-800">
-                    <TrendingUp className="w-5 h-5 text-amber-500" />
-                    Your Next 3 Predicted Clicks
-                  </h3>
-                  <div className="grid gap-3 lg:gap-4">
-                    {predictions.length === 0 ? (
-                      <div className="col-span-2 bg-gray-50 rounded-2xl p-6 lg:p-8 text-center text-gray-400 border border-gray-100">
-                        <Target className="w-10 h-10 lg:w-12 lg:h-12 mx-auto mb-3 opacity-50" />
-                        <p className="text-sm lg:text-base">
-                          Complete 60 seconds of tracking to see predictions
-                        </p>
-                      </div>
-                    ) : (
-                      predictions.map((pred, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.45 + i * 0.1 }}
-                          className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-4 border border-orange-100"
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-2 lg:gap-3">
-                              <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
-                                <TrendingUp className="w-4 h-4 lg:w-5 lg:h-5" />
-                              </div>
-                              <div>
-                                <div className="font-bold text-sm lg:text-base text-gray-800">
-                                  {pred.action}
-                                </div>
-                                <div className="text-xs text-gray-500">{pred.reason}</div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xl lg:text-2xl font-bold text-amber-600">
-                                {pred.confidence}%
-                              </div>
-                            </div>
-                          </div>
-                          <div className="h-2 rounded-full bg-white overflow-hidden">
-                            <motion.div
-                              className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-500"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${pred.confidence}%` }}
-                              transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
-                            />
-                          </div>
-                        </motion.div>
-                      ))
-                    )}
-                  </div>
-                </motion.div>
-
                 {/* Control Button */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-6 flex justify-center"
-                >
+                <div className="mt-8 flex justify-center">
                   <motion.button
                     onClick={isTracking ? stopTracking : startTracking}
-                    className={`px-8 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all ${isTracking
-                      ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30'
-                      : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/30'
+                    className={`px-10 py-4 rounded-full font-bold text-white shadow-xl transition-all ${isTracking
+                      ? 'bg-red-500 shadow-red-500/30'
+                      : 'bg-gradient-to-r from-purple-600 to-purple-500 shadow-purple-500/30'
                       }`}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    {isTracking ? (
-                      <>
-                        <Pause className="w-5 h-5" />
-                        Stop Tracking
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-5 h-5" />
-                        {trackedEvents.length > 0 ? 'Restart Tracking' : 'Start Tracking'}
-                      </>
-                    )}
+                    {isTracking ? 'Stop Analysis' : 'Start Instant Tracking'}
                   </motion.button>
-                </motion.div>
+                </div>
               </div>
             </motion.div>
           </motion.div>

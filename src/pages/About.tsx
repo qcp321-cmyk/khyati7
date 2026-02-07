@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Target, Users, Zap, Heart, Globe, Award } from 'lucide-react';
 import ScrollEffect from '../components/ScrollEffect';
 
@@ -137,30 +138,52 @@ export default function About() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value, i) => (
-              <ScrollEffect
-                key={value.title}
-                direction={i % 2 === 0 ? 'horizontal' : 'diagonal-right'}
-                delay={i * 0.1}
-              >
-                <motion.div
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  className={`bg-white rounded-2xl p-6 shadow-lg border text-center group cursor-pointer transition-all duration-300 ${i % 2 === 0
-                    ? 'shadow-purple-100/30 border-purple-50 hover:shadow-purple-200/50'
-                    : 'shadow-orange-100/30 border-orange-50 hover:shadow-orange-200/50'
-                    }`}
+            {values.map((value, i) => {
+              const [isExpanded, setIsExpanded] = useState(false);
+              return (
+                <ScrollEffect
+                  key={value.title}
+                  direction={i % 2 === 0 ? 'horizontal' : 'diagonal-right'}
+                  delay={i * 0.1}
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform ${i % 2 === 0
-                    ? 'bg-purple-100 text-purple-600 group-hover:bg-orange-100 group-hover:text-orange-600'
-                    : 'bg-orange-100 text-orange-600 group-hover:bg-purple-100 group-hover:text-purple-600'
-                    }`}>
-                    {value.icon}
-                  </div>
-                  <h3 className="font-bold text-gray-800 mb-2">{value.title}</h3>
-                  <p className="text-sm text-gray-500">{value.description}</p>
-                </motion.div>
-              </ScrollEffect>
-            ))}
+                  <motion.div
+                    layout
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    whileHover={{ y: isExpanded ? 0 : -8, scale: isExpanded ? 1 : 1.02 }}
+                    className={`bg-white rounded-2xl p-6 shadow-lg border text-center group cursor-pointer transition-all duration-300 ${i % 2 === 0
+                      ? 'shadow-purple-100/30 border-purple-50 hover:shadow-purple-200/50'
+                      : 'shadow-orange-100/30 border-orange-50 hover:shadow-orange-200/50'
+                      }`}
+                  >
+                    <motion.div layout className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform ${i % 2 === 0
+                      ? 'bg-purple-100 text-purple-600 group-hover:bg-orange-100 group-hover:text-orange-600'
+                      : 'bg-orange-100 text-orange-600 group-hover:bg-purple-100 group-hover:text-purple-600'
+                      }`}>
+                      {value.icon}
+                    </motion.div>
+                    <motion.h3 layout className="font-bold text-gray-800 mb-2">{value.title}</motion.h3>
+                    <motion.p layout className="text-sm text-gray-500">{value.description}</motion.p>
+
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-4 pt-4 border-t border-gray-100 text-xs text-left space-y-2"
+                        >
+                          <div className="font-bold text-purple-600">Key Principle:</div>
+                          <p className="text-gray-600 italic">"Ensuring every action captured is meaningful and preserved for organizational continuity."</p>
+                          <div className="flex items-center gap-1 text-[10px] text-orange-500 font-bold uppercase mt-2">
+                            <Zap className="w-3 h-3" /> Core Foundation
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                </ScrollEffect>
+              );
+            })}
           </div>
         </div>
       </section>

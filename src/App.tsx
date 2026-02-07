@@ -34,23 +34,21 @@ function App() {
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      touchMultiplier: 2,
+      touchMultiplier: 1.5,
     });
 
     lenisRef.current = lenis;
 
-    // Connect Lenis to GSAP ScrollTrigger
-    lenis.on('scroll', ScrollTrigger.update);
-
-    gsap.ticker.add((time) => {
+    function update(time: number) {
       lenis.raf(time * 1000);
-    });
+    }
 
+    gsap.ticker.add(update);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
       lenis.destroy();
-      gsap.ticker.remove(lenis.raf);
+      gsap.ticker.remove(update);
     };
   }, []);
 
@@ -59,7 +57,6 @@ function App() {
     if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
     }
-    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   return (
